@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import 'dotenv/config';
-import { UsersService } from 'src/modules/users/users.service';
+import { UsersService } from 'src/models/users/users.service';
 
 const ROLES = 'roles';
 
