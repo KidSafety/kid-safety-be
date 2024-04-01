@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { COOKIES_EXPIRE_TIME_MILLISECONDS, TOKEN_KEY_NAME } from './constant';
 import { Cookies } from './decorators/cookies.decorator';
