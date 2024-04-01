@@ -16,8 +16,8 @@ export class RolesGuard implements CanActivate {
     const roles = this.reflector.get<string[]>(ROLES, context.getHandler());
     if (!roles) return true;
     const req = context.switchToHttp().getRequest();
-    const clerkUserId = req.clerkUserId;
-    const user = await this.userService.getUserByClerkId(clerkUserId);
+    const userId = req.userId;
+    const user = await this.userService.getUserById(userId);
     return this.matchRoles(roles, user?.role);
   }
 
