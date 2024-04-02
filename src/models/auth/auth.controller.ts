@@ -18,7 +18,7 @@ export class AuthController {
     @Body() data: GenerateUserDto,
     @Res({ passthrough: true }) response,
   ) {
-    const user = await this.authService.generateUser(data.userId, data.email);
+    const user = await this.authService.generateUser(data.id, data.email);
     const jwt = await this.authService.generateJWT(user);
     const cookieOptions = {
       httpOnly: true,

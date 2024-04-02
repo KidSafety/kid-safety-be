@@ -18,9 +18,7 @@ export class UsersService {
   async generateUser(userId?: string, email?: string): Promise<User> {
     const user = await this.repository.findUser({ where: { email } });
     if (user) return user;
-    const existingUserWithUserId = await this.repository.findUser({
-      where: { id: userId },
-    });
+    const existingUserWithUserId = await this.repository.findUserById(userId);
     if (existingUserWithUserId && !user) userId = uuid();
     else userId = userId || uuid();
     return await this.repository.createUser({

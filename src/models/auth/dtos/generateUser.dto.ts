@@ -2,7 +2,7 @@ import { IsEmail, IsOptional } from 'class-validator';
 
 export class GenerateUserDto {
   @IsOptional()
-  userId?: string;
+  id?: string;
   @IsEmail()
   @IsOptional()
   email?: string;
