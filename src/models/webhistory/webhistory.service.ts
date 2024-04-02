@@ -9,22 +9,35 @@ export class WebhistoryService {
 
   async syncWebhistory(user: User, data: WebHistorySyncInputDto) {
     const chromeWebHistoryInput = {
-      url: data.url,
-      title: data.title,
-      score: 0,
-      category: 'unknown',
-      lastVisitTime: new Date(data.lastVisitTime),
-      visitCount: data.visitCount,
-      typedCount: 0,
-      duration: 0,
-      User: {
-        connect: {
-          id: user.id,
+      where: {
+        itemId: data.id,
+      },
+      create: {
+        itemId: data.id,
+        url: data.url,
+        title: data.title,
+        score: 0,
+        category: 'unknown',
+        lastVisitTime: new Date(data.lastVisitTime),
+        visitCount: data.visitCount,
+        typedCount: 0,
+        duration: 0,
+        User: {
+          connect: {
+            id: user.id,
+          },
         },
       },
-    } as Prisma.ChromeWebHistoryCreateInput;
-    return await this.prismaService.chromeWebHistory.create({
-      data: chromeWebHistoryInput,
-    });
+      update: {
+        url: data.url,
+        title: data.title,
+        lastVisitTime: new Date(data.lastVisitTime),
+        visitCount: data.visitCount,
+      },
+    } as unknown as Prisma.ChromeWebHistoryUpsertArgs;
+
+    return await this.prismaService.chromeWebHistory.upsert(
+      chromeWebHistoryInput,
+    );
   }
 }

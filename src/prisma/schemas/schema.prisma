@@ -75,6 +75,7 @@ model User {
 
 model ChromeWebHistory {
   id            String   @id @default(cuid())
+  itemId        String   @unique
   url           String
   title         String?
   score         Float

@@ -9,4 +9,5 @@ export const WebHistorySyncZSchema = z.object({
   visitCount: z.number(),
 });
 
+export const WebHistorySyncZSchemaArray = z.array(WebHistorySyncZSchema);
 export type WebHistorySyncInputDto = z.infer<typeof WebHistorySyncZSchema>;

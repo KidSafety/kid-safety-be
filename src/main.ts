@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './models/auth/guards/AuthGuard';
+import { ZodFilter } from './models/auth/filters/zod.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,6 +20,8 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
+
+  app.useGlobalFilters(new ZodFilter());
 
   app.setGlobalPrefix('api', {
     exclude: ['tokenCallback'],
