@@ -91,3 +91,30 @@ model ChromeWebHistory {
 
   User User @relation(fields: [userId], references: [id])
 }
+
+model SiteBlackList {
+  id        String   @id @default(cuid())
+  url       String   @unique
+  dns       String?
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category], name: "SiteBlackListCategoryIndex")
+  @@index([url, dns], name: "UniqueUrlDnsIndex")
+}
+
+model CustomSite {
+  id        String   @id @default(cuid())
+  url       String
+  dns       String?
+  category  String?
+  userId    String?
+  isBlocked Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category], name: "CustomSiteCategoryIndex")
+  @@index([url], name: "CustomSiteUrlIndex")
+  @@index([url, userId], name: "UniqueUrlUserIdIndex")
+}
