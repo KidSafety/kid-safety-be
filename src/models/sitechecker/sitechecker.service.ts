@@ -18,7 +18,7 @@ export class SitecheckerService {
       const { category, data } = extractDnsAndDomain(fileContent);
 
       // 3. Divide data into chunks of 5000 sites at a time
-      const dataChunks = chunk(data, 5000);
+      const dataChunks = chunk(data, 4000);
       const totalChunks = dataChunks.length;
 
       console.log(`Total chunks: ${totalChunks}`);
@@ -40,6 +40,7 @@ export class SitecheckerService {
       }
 
       // Return true if everything succeeds
+      console.log('All sites added successfully');
       return true;
     } catch (error) {
       this.logger.error(`Error adding bulk sites`, error);
