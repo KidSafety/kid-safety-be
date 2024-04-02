@@ -100,7 +100,7 @@ model SiteBlackList {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([category], name: "CategoryIndex")
+  @@index([category], name: "SiteBlackListCategoryIndex")
   @@index([url, dns], name: "UniqueUrlDnsIndex")
 }
 
@@ -114,6 +114,7 @@ model CustomSite {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([category], name: "CustomSiteCategoryIndex")
   @@index([url], name: "UniqueUrlIndex")
   @@index([url, userId], name: "UniqueUrlUserIdIndex")
 }
