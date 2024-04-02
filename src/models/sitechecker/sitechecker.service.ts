@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import axios from 'axios';
-import { extractDnsAndDomain } from './utils';
+import { chunk } from 'lodash';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { extractDnsAndDomain } from './utils';
+
 @Injectable()
 export class SitecheckerService {
   private readonly logger = new Logger(SitecheckerService.name);
@@ -11,32 +12,37 @@ export class SitecheckerService {
   async addBulkSites(source: string): Promise<boolean> {
     try {
       // 1. Get the list of sites from the source
-      const file = await axios.get(source).then((res) => res.data);
+      const fileContent = await axios.get(source).then((res) => res.data);
+
       // 2. Parse the file
-      const { category, data } = extractDnsAndDomain(file);
-      // 3. Add the sites to the database
-      await Promise.all(
-        data.map(async (site) => {
-          const siteBlackListInput = {
-            where: { url: site.domain },
-            create: {
-              url: site.domain,
-              dns: site.dns,
-              category,
-            },
-            update: {
-              url: site.domain,
-              dns: site.dns,
-              category: category,
-            },
-          } as Prisma.SiteBlackListUpsertArgs;
-          await this.prismaService.siteBlackList.upsert(siteBlackListInput);
-        }),
-      );
+      const { category, data } = extractDnsAndDomain(fileContent);
+
+      // 3. Divide data into chunks of 5000 sites at a time
+      const dataChunks = chunk(data, 5000);
+      const totalChunks = dataChunks.length;
+
+      console.log(`Total chunks: ${totalChunks}`);
+
+      // 4. Add the sites to the database in chunks
+      let currentChunk = 0;
+      for (const chunk of dataChunks) {
+        currentChunk++;
+        console.log(`Processing chunk ${currentChunk} of ${totalChunks}`);
+        const siteBlackListInputs = chunk.map((site) => ({
+          url: site.domain,
+          dns: site.dns,
+          category,
+        }));
+        await this.prismaService.siteBlackList.createMany({
+          data: siteBlackListInputs,
+          skipDuplicates: true,
+        });
+      }
+
+      // Return true if everything succeeds
       return true;
     } catch (error) {
-      console.error(`Error adding bulk sites`, error);
-      this.logger.error(`Error adding bulk sites: ${JSON.stringify(error)}`);
+      this.logger.error(`Error adding bulk sites`, error);
       throw new BadRequestException('Error adding bulk sites');
     }
   }

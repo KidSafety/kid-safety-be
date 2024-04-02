@@ -94,7 +94,7 @@ model ChromeWebHistory {
 
 model SiteBlackList {
   id        String   @id @default(cuid())
-  url       String
+  url       String   @unique
   dns       String?
   category  String?
   createdAt DateTime @default(now())
@@ -115,6 +115,6 @@ model CustomSite {
   updatedAt DateTime @updatedAt
 
   @@index([category], name: "CustomSiteCategoryIndex")
-  @@index([url], name: "UniqueUrlIndex")
+  @@index([url], name: "CustomSiteUrlIndex")
   @@index([url, userId], name: "UniqueUrlUserIdIndex")
 }

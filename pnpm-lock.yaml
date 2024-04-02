@@ -38,6 +38,9 @@ dependencies:
   '@types/jsonwebtoken':
     specifier: ^9.0.6
     version: 9.0.6
+  '@types/lodash':
+    specifier: ^4.17.0
+    version: 4.17.0
   '@types/passport-jwt':
     specifier: ^4.0.1
     version: 4.0.1
@@ -65,6 +68,9 @@ dependencies:
   jwks-rsa:
     specifier: ^3.1.0
     version: 3.1.0
+  lodash:
+    specifier: ^4.17.21
+    version: 4.17.21
   passport-jwt:
     specifier: ^4.0.1
     version: 4.0.1
@@ -1383,6 +1389,10 @@ packages:
     resolution: {integrity: sha512-/5hndP5dCjloafCXns6SZyESp3Ldq7YjH3zwzwczYnjxIT0Fqzk5ROSYVGfFyczIue7IUEj8hkvLbPoLQ18vQw==}
     dependencies:
       '@types/node': 20.11.30
+    dev: false
+
+  /@types/lodash@4.17.0:
+    resolution: {integrity: sha512-t7dhREVv6dbNj0q17X12j7yDG4bD/DHYX7o5/DbDxobP0HnGPgpRz2Ej77aL7TZT3DSw13fqUTj8J4mMnqa7WA==}
     dev: false
 
   /@types/methods@1.1.4:
