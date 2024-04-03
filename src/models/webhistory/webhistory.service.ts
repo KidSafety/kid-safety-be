@@ -7,37 +7,36 @@ import { WebHistorySyncInputDto } from './types/web.history.sync.input.dto';
 export class WebhistoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async syncWebhistory(user: User, data: WebHistorySyncInputDto) {
-    const chromeWebHistoryInput = {
+  async getWebHistoryList(user: User) {
+    return await this.prismaService.chromeWebHistory.findMany({
       where: {
-        itemId: data.id,
+        userId: user.id,
       },
-      create: {
-        itemId: data.id,
-        url: data.url,
-        title: data.title,
+      take: 100, // depending on the user's plan
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  async syncWebhistory(user: User, data: WebHistorySyncInputDto[]) {
+    const chromeWebHistoryInputs: Prisma.ChromeWebHistoryCreateManyInput[] =
+      data.map((item) => ({
+        itemId: item.id,
+        url: item.url,
+        title: item.title,
         score: 0,
         category: 'unknown',
-        lastVisitTime: new Date(data.lastVisitTime),
-        visitCount: data.visitCount,
+        lastVisitTime: new Date(item.lastVisitTime),
+        visitCount: item.visitCount,
         typedCount: 0,
         duration: 0,
-        User: {
-          connect: {
-            id: user.id,
-          },
-        },
-      },
-      update: {
-        url: data.url,
-        title: data.title,
-        lastVisitTime: new Date(data.lastVisitTime),
-        visitCount: data.visitCount,
-      },
-    } as unknown as Prisma.ChromeWebHistoryUpsertArgs;
+        userId: user.id,
+      }));
 
-    return await this.prismaService.chromeWebHistory.upsert(
-      chromeWebHistoryInput,
-    );
+    return await this.prismaService.chromeWebHistory.createMany({
+      data: chromeWebHistoryInputs,
+      skipDuplicates: true,
+    });
   }
 }

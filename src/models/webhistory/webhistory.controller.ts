@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Req } from '@nestjs/common';
 import { ZodPipe } from '../auth/pipe/zod.pipe';
 import {
   WebHistorySyncInputDto,
@@ -14,6 +14,12 @@ export class WebhistoryController {
   private readonly logger = new Logger(WebhistoryController.name);
   constructor(private readonly webhistoryService: WebhistoryService) {}
 
+  @Get('/list')
+  async getWebHistoryList(@Req() req) {
+    const user = req?.user;
+    return await this.webhistoryService.getWebHistoryList(user);
+  }
+
   @Post('/sync')
   async syncWebhistory(
     @Req() req,
@@ -21,14 +27,6 @@ export class WebhistoryController {
     payload: WebHistorySyncInputDto[],
   ) {
     const user = req?.user;
-    Promise.allSettled(
-      payload.map((item) => this.webhistoryService.syncWebhistory(user, item)),
-    ).catch((e) => {
-      this.logger.error(
-        `error syncing User: ${JSON.stringify(
-          user,
-        )} webhistory: ${JSON.stringify(e)}`,
-      );
-    });
+    await this.webhistoryService.syncWebhistory(user, payload);
   }
 }

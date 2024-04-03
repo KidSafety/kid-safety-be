@@ -90,6 +90,8 @@ model ChromeWebHistory {
   updatedAt     DateTime @updatedAt
 
   User User @relation(fields: [userId], references: [id])
+
+  @@index([userId], name: "ChromeWebHistoryUserIdIndex")
 }
 
 model SiteBlackList {
