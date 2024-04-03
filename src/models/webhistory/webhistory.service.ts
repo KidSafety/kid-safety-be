@@ -2,17 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { WebHistorySyncInputDto } from './types/web.history.sync.input.dto';
+import { SearchQueryDto } from 'src/common/dtos/search.query';
 
 @Injectable()
 export class WebhistoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getWebHistoryList(user: User) {
+  async getWebHistoryList(user: User, query: SearchQueryDto) {
     return await this.prismaService.chromeWebHistory.findMany({
       where: {
         userId: user.id,
       },
-      take: 100, // depending on the user's plan
+      skip: Number(query.skip),
+      take: Number(query.limit),
       orderBy: {
         createdAt: 'desc',
       },
