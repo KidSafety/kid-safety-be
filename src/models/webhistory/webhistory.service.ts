@@ -9,7 +9,8 @@ export class WebhistoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getWebHistoryList(user: User, query: SearchQueryDto) {
-    return await this.prismaService.chromeWebHistory.findMany({
+    const total = await this.prismaService.chromeWebHistory.count();
+    const histories = await this.prismaService.chromeWebHistory.findMany({
       where: {
         userId: user.id,
       },
@@ -19,6 +20,10 @@ export class WebhistoryService {
         createdAt: 'desc',
       },
     });
+    return {
+      total,
+      histories,
+    };
   }
 
   async syncWebhistory(user: User, data: WebHistorySyncInputDto[]) {
