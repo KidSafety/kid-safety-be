@@ -11,7 +11,7 @@ import { ZodPipe } from '../auth/pipe/zod.pipe';
 import {
   WebHistorySyncInputDto,
   WebHistorySyncZSchemaArray,
-} from './types/web.history.sync.input.dto';
+} from './dtos/web.history.sync.input.dto';
 import { WebhistoryService } from './webhistory.service';
 import {
   SearchQueryDto,
