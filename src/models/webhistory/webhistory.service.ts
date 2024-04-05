@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { WebHistorySyncInputDto } from './types/web.history.sync.input.dto';
+import { WebHistorySyncInputDto } from './dtos/web.history.sync.input.dto';
 import { SearchQueryDto } from 'src/common/dtos/search.query';
 
 @Injectable()

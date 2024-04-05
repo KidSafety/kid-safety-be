@@ -1,8 +1,10 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { User } from '@prisma/client';
 import axios from 'axios';
 import { chunk } from 'lodash';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { extractDnsAndDomain } from './utils';
+import { AddSiteBlackListDto } from './dtos/add.site.blacklist.dto';
+import { extractDnsAndDomain, extractDomainFromUrl } from './utils';
 
 @Injectable()
 export class SitecheckerService {
@@ -46,6 +48,47 @@ export class SitecheckerService {
       this.logger.error(`Error adding bulk sites`, error);
       throw new BadRequestException('Error adding bulk sites');
     }
+  }
+
+  async addBlackList(user: User, payload: AddSiteBlackListDto) {
+    try {
+      const domain = extractDomainFromUrl(payload.url);
+      const site = await this.getCustomSite(user, domain);
+      if (site) return true;
+      await this.prismaService.customSite.create({
+        data: {
+          category: payload.category,
+          url: payload.url,
+          domain: domain,
+          userId: user.id,
+          isBlocked: true,
+        },
+      });
+      return true;
+    } catch (error) {
+      this.logger.error(`Error adding blacklist site`, error);
+      throw new BadRequestException('Error adding blacklist site');
+    }
+  }
+
+  private async getCustomSite(user: User, domain: string) {
+    const site = await this.prismaService.customSite.findFirst({
+      where: {
+        domain,
+        userId: user.id,
+      },
+    });
+    return site;
+  }
+
+  async isSiteBlocked(user: User, url: string) {
+    this.logger.log(`user ${user.id} Checking if site is blocked ${url}`);
+    const domain = extractDomainFromUrl(url);
+    this.logger.log(`Domain: ${domain}`);
+    if (!domain) return false;
+    const site = await this.getCustomSite(user, domain);
+    if (!site) return false;
+    return site?.isBlocked;
   }
 
   async addSite() {}

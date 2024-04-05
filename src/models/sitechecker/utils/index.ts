@@ -1,4 +1,5 @@
 import { ISiteCheckerImportData } from '../types';
+import url, { URL, URLSearchParams } from 'url';
 
 export function extractDnsAndDomain(fileContent: string): {
   category: string;
@@ -29,4 +30,14 @@ export function extractDnsAndDomain(fileContent: string): {
   }
 
   return { category, data: dnsAndDomains };
+}
+
+export function extractDomainFromUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    return parsedUrl.hostname;
+  } catch (error) {
+    console.error(`Error extracting domain from url: ${url}`, error);
+    return null;
+  }
 }
