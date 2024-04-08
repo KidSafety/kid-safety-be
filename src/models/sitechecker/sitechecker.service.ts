@@ -5,6 +5,7 @@ import { chunk } from 'lodash';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddSiteBlackListDto } from './dtos/add.site.blacklist.dto';
 import { extractDnsAndDomain, extractDomainFromUrl } from './utils';
+import { SearchQueryDto } from 'src/common/dtos/search.query';
 
 @Injectable()
 export class SitecheckerService {
@@ -93,15 +94,29 @@ export class SitecheckerService {
     return site?.isBlocked;
   }
 
-  async getCustomSiteList(user: User) {
+  async getCustomSiteList(user: User, query: SearchQueryDto) {
     try {
-      const sites = await this.prismaService.customSite.findMany({
+      const total = await this.prismaService.customSite.count({
         where: {
           userId: user.id,
           isBlocked: true,
         },
       });
-      return sites;
+      const sites = await this.prismaService.customSite.findMany({
+        where: {
+          userId: user.id,
+          isBlocked: true,
+        },
+        skip: Number(query.skip),
+        take: Number(query.limit),
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+      return {
+        total,
+        sites,
+      };
     } catch (error) {
       console.error(`Error listing custom blocked sites`, error);
       this.logger.error(`Error listing custom blocked sites`, error);

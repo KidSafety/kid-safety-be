@@ -13,6 +13,10 @@ import {
   AddSiteBlackListZSchema,
 } from './dtos/add.site.blacklist.dto';
 import { SitecheckerService } from './sitechecker.service';
+import {
+  SearchQueryDto,
+  SearchQueryZSchema,
+} from 'src/common/dtos/search.query';
 
 @Controller({
   path: 'sitechecker',
@@ -44,9 +48,10 @@ export class SitecheckerController {
   }
 
   @Get('/blacklist/custom')
-  async getCustomSiteList(@Req() req) {
+  async getCustomSiteList(@Req() req, @Query() query: SearchQueryDto) {
     const user = req?.user;
-    return this.sitecheckerService.getCustomSiteList(user);
+    query = SearchQueryZSchema.parse(query);
+    return this.sitecheckerService.getCustomSiteList(user, query);
   }
 
   @Delete('/blacklist/custom')

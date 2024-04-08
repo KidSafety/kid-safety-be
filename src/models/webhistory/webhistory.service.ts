@@ -9,7 +9,11 @@ export class WebhistoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async getWebHistoryList(user: User, query: SearchQueryDto) {
-    const total = await this.prismaService.chromeWebHistory.count();
+    const total = await this.prismaService.chromeWebHistory.count({
+      where: {
+        userId: user.id,
+      },
+    });
     const histories = await this.prismaService.chromeWebHistory.findMany({
       where: {
         userId: user.id,
