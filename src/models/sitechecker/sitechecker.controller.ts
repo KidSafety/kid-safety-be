@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { ZodPipe } from '../auth/pipe/zod.pipe';
 import {
   AddSiteBlackListDto,
@@ -33,5 +41,18 @@ export class SitecheckerController {
     const url = payload.url;
     const user = req?.user;
     return this.sitecheckerService.isSiteBlocked(user, url);
+  }
+
+  @Get('/blacklist/custom')
+  async getCustomSiteList(@Req() req) {
+    const user = req?.user;
+    return this.sitecheckerService.getCustomSiteList(user);
+  }
+
+  @Delete('/blacklist/custom')
+  async removeCustomBlackList(@Req() req, @Query() query: any) {
+    const user = req?.user;
+    const url = query.url;
+    return this.sitecheckerService.removeCustomBlackList(user, url);
   }
 }
