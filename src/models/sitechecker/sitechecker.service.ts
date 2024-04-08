@@ -72,10 +72,12 @@ export class SitecheckerService {
   }
 
   private async getCustomSite(user: User, domain: string) {
-    const site = await this.prismaService.customSite.findFirst({
+    const site = await this.prismaService.customSite.findUnique({
       where: {
-        domain,
-        userId: user.id,
+        CustomSiteUrlUserIdUniqueIndex: {
+          domain,
+          userId: user.id,
+        },
       },
     });
     return site;
@@ -91,17 +93,40 @@ export class SitecheckerService {
     return site?.isBlocked;
   }
 
-  async addSite() {}
+  async getCustomSiteList(user: User) {
+    try {
+      const sites = await this.prismaService.customSite.findMany({
+        where: {
+          userId: user.id,
+          isBlocked: true,
+        },
+      });
+      return sites;
+    } catch (error) {
+      console.error(`Error listing custom blocked sites`, error);
+      this.logger.error(`Error listing custom blocked sites`, error);
+      throw new BadRequestException('Error listing custom blocked sites');
+    }
+  }
 
-  async addBulkCustomSites() {}
-
-  async addCustomSite() {}
-
-  async getCustomSiteList() {}
-
-  async getSite(url: string) {}
-
-  async searchSite(url: string) {}
-
-  async deleteSite(url: string) {}
+  async removeCustomBlackList(user: User, url: string) {
+    try {
+      const domain = extractDomainFromUrl(url);
+      const checkSite = await this.getCustomSite(user, domain);
+      if (!checkSite) return true;
+      await this.prismaService.customSite.delete({
+        where: {
+          CustomSiteUrlUserIdUniqueIndex: {
+            userId: user.id,
+            domain,
+          },
+        },
+      });
+      return true;
+    } catch (error) {
+      console.error(`Error removing custom blacklist site`, error);
+      this.logger.error(`Error removing custom blacklist site`, error);
+      throw new BadRequestException('Error removing custom blacklist site');
+    }
+  }
 }
