@@ -2,10 +2,11 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { User } from '@prisma/client';
 import axios from 'axios';
 import { chunk } from 'lodash';
+import { SearchQueryDto } from 'src/common/dtos/search.query';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AddSiteBlackListDto } from './dtos/add.site.blacklist.dto';
+import { AddSiteWhiteListDto } from './dtos/add.site.whitelist.dto';
 import { extractDnsAndDomain, extractDomainFromUrl } from './utils';
-import { SearchQueryDto } from 'src/common/dtos/search.query';
 
 @Injectable()
 export class SitecheckerService {
@@ -55,7 +56,21 @@ export class SitecheckerService {
     try {
       const domain = extractDomainFromUrl(payload.url);
       const site = await this.getCustomSite(user, domain);
-      if (site) return true;
+      if (site && site.isBlocked) return true;
+      if (site && !site.isBlocked) {
+        await this.prismaService.customSite.update({
+          where: {
+            CustomSiteUrlUserIdUniqueIndex: {
+              userId: user.id,
+              domain,
+            },
+          },
+          data: {
+            isBlocked: true,
+          },
+        });
+        return true;
+      }
       await this.prismaService.customSite.create({
         data: {
           category: payload.category,
@@ -63,6 +78,39 @@ export class SitecheckerService {
           domain: domain,
           userId: user.id,
           isBlocked: true,
+        },
+      });
+      return true;
+    } catch (error) {
+      this.logger.error(`Error adding blacklist site`, error);
+      throw new BadRequestException('Error adding blacklist site');
+    }
+  }
+
+  async addWhiteList(user: User, payload: AddSiteWhiteListDto) {
+    try {
+      const domain = extractDomainFromUrl(payload.url);
+      const site = await this.getCustomSite(user, domain);
+      if (site) {
+        await this.prismaService.customSite.update({
+          where: {
+            CustomSiteUrlUserIdUniqueIndex: {
+              userId: user.id,
+              domain,
+            },
+          },
+          data: {
+            isBlocked: false,
+          },
+        });
+        return true;
+      }
+      await this.prismaService.customSite.create({
+        data: {
+          url: payload.url,
+          domain: domain,
+          userId: user.id,
+          isBlocked: false,
         },
       });
       return true;

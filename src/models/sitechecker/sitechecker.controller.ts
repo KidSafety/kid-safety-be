@@ -7,16 +7,20 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
+import {
+  SearchQueryDto,
+  SearchQueryZSchema,
+} from 'src/common/dtos/search.query';
 import { ZodPipe } from '../auth/pipe/zod.pipe';
 import {
   AddSiteBlackListDto,
   AddSiteBlackListZSchema,
 } from './dtos/add.site.blacklist.dto';
-import { SitecheckerService } from './sitechecker.service';
 import {
-  SearchQueryDto,
-  SearchQueryZSchema,
-} from 'src/common/dtos/search.query';
+  AddSiteWhiteListDto,
+  AddSiteWhiteListZSchema,
+} from './dtos/add.site.whitelist.dto';
+import { SitecheckerService } from './sitechecker.service';
 
 @Controller({
   path: 'sitechecker',
@@ -38,6 +42,15 @@ export class SitecheckerController {
   ) {
     const user = req?.user;
     return this.sitecheckerService.addBlackList(user, payload);
+  }
+
+  @Post('/whitelist/add')
+  async addToWhiteList(
+    @Req() req,
+    @Body(new ZodPipe(AddSiteWhiteListZSchema)) payload: AddSiteWhiteListDto,
+  ) {
+    const user = req?.user;
+    return this.sitecheckerService.addWhiteList(user, payload);
   }
 
   @Post('/isBlocked')
