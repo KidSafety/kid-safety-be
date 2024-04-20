@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { v4 as uuid } from 'uuid';
 import { UsersRepository } from './users.repository';
@@ -32,5 +32,29 @@ export class UsersService {
     tableNames: string[],
   ): Promise<Record<string, number>> {
     return this.repository.countUserItems(userId, tableNames);
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.repository.findUserById(userId);
+    if (user.managerPassword && user.managerPassword !== currentPassword) {
+      throw new BadRequestException('Invalid password');
+    } else {
+      await this.repository.changePassword(userId, newPassword);
+      return true;
+    }
+  }
+
+  async setFirstTimePassword(userId: string, newPassword: string) {
+    const user = await this.repository.findUserById(userId);
+    if (user.managerPassword) {
+      throw new BadRequestException('Password already set');
+    } else {
+      await this.repository.changePassword(userId, newPassword);
+      return true;
+    }
   }
 }

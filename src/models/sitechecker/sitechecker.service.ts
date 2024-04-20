@@ -147,13 +147,11 @@ export class SitecheckerService {
       const total = await this.prismaService.customSite.count({
         where: {
           userId: user.id,
-          isBlocked: true,
         },
       });
       const sites = await this.prismaService.customSite.findMany({
         where: {
           userId: user.id,
-          isBlocked: true,
         },
         skip: Number(query.skip),
         take: Number(query.limit),

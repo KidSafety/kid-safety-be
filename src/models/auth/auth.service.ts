@@ -18,4 +18,20 @@ export class AuthService {
     const payload = { ...user };
     return this.jwtService.sign(payload);
   }
+
+  async setFirstTimePassword(user: User, newPassword: string) {
+    return this.usersService.setFirstTimePassword(user.id, newPassword);
+  }
+
+  async changePassword(
+    user: User,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    return this.usersService.changePassword(
+      user.id,
+      currentPassword,
+      newPassword,
+    );
+  }
 }

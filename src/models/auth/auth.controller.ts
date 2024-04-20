@@ -1,11 +1,19 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { COOKIES_EXPIRE_TIME_MILLISECONDS, TOKEN_KEY_NAME } from './constant';
 import { Cookies } from './decorators/cookies.decorator';
 import { Public } from './decorators/public.decorator';
+import {
+  ChangePasswordDto,
+  ChangePasswordZSchema,
+} from './dtos/changePassword.dto';
+import {
+  FirstTimePasswordDto,
+  FirstTimePasswordZSchema,
+} from './dtos/firstTimePassword.dto';
 import { GenerateUserDto } from './dtos/generateUser.dto';
+import { ZodPipe } from './pipe/zod.pipe';
 
-@Public()
 @Controller({
   path: 'auth',
   version: '1',
@@ -14,6 +22,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('generate')
+  @Public()
   async generate(
     @Body() data: GenerateUserDto,
     @Res({ passthrough: true }) response,
@@ -33,6 +42,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @Public()
   async logout(@Cookies() cookies, @Res({ passthrough: true }) res) {
     for (const cookie in cookies) {
       res.cookie(cookie, '', {
@@ -42,5 +52,27 @@ export class AuthController {
       });
     }
     return 'Logged out successfully!';
+  }
+
+  @Post('/first-password')
+  async setPassword(
+    @Req() req,
+    @Body(new ZodPipe(FirstTimePasswordZSchema)) payload: FirstTimePasswordDto,
+  ) {
+    const user = req?.user;
+    return this.authService.setFirstTimePassword(user, payload.newPassword);
+  }
+
+  @Post('change-password')
+  async changePassword(
+    @Req() req,
+    @Body(new ZodPipe(ChangePasswordZSchema)) payload: ChangePasswordDto,
+  ) {
+    const user = req?.user;
+    return this.authService.changePassword(
+      user,
+      payload.currentPassword,
+      payload.newPassword,
+    );
   }
 }
