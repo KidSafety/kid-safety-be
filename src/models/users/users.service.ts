@@ -12,7 +12,9 @@ export class UsersService {
   }
 
   async getUserById(userId: any) {
-    return await this.repository.findUserById(userId);
+    const user = await this.repository.findUserById(userId);
+    delete user.managerPassword;
+    return user;
   }
 
   async generateUser(userId?: string, email?: string): Promise<User> {
@@ -39,8 +41,13 @@ export class UsersService {
     currentPassword: string,
     newPassword: string,
   ) {
-    const user = await this.repository.findUserById(userId);
-    if (user.managerPassword && user.managerPassword !== currentPassword) {
+    const user = await this.repository.findUserById(userId, false);
+    if (!user.managerPassword) {
+      throw new BadRequestException('Password not set');
+    } else if (
+      user.managerPassword &&
+      user.managerPassword !== currentPassword
+    ) {
       throw new BadRequestException('Invalid password');
     } else {
       await this.repository.changePassword(userId, newPassword);
@@ -49,8 +56,8 @@ export class UsersService {
   }
 
   async setFirstTimePassword(userId: string, newPassword: string) {
-    const user = await this.repository.findUserById(userId);
-    if (user.managerPassword) {
+    const user = await this.repository.findUserById(userId, false);
+    if (user?.managerPassword) {
       throw new BadRequestException('Password already set');
     } else {
       await this.repository.changePassword(userId, newPassword);

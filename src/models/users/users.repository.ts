@@ -32,7 +32,8 @@ export class UsersRepository {
     return user;
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async findUserById(id: string, enableCache = true): Promise<User | null> {
+    if (!enableCache) return this.prisma.user.findUnique({ where: { id } });
     const userCache = await this.redisClient.get(`user:id:${id}`);
     if (userCache) return JSON.parse(userCache);
     const user = await this.prisma.user.findUnique({
