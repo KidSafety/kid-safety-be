@@ -7,22 +7,43 @@ import { IFamilyRepository } from './family.abstract.usecase';
 export class FamilyRepository implements IFamilyRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  getParentByEmail(email: string): Promise<User> {
-    throw new Error('Method not implemented.');
+  async getParentByEmail(email: string): Promise<User> {
+    return await this.prismaService.user.findUnique({ where: { email } });
   }
-  checkIsUserHasFamily(userId: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  async checkIsUserHasFamily(userId: string): Promise<boolean> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    return Boolean(user.managerId);
   }
-  checkIsUserInFamily(userId: string, parentId: string): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  async checkIsUserInFamily(
+    userId: string,
+    parentId: string,
+  ): Promise<boolean> {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user?.managerId) return false;
+    return user.managerId === parentId;
   }
-  joinFamilyByParentId(userId: string, parentId: string): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async joinFamilyByParentId(userId: string, parentId: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { managerId: parentId },
+    });
   }
-  removeUserFromFamily(userId: string, parentId: string): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async removeUserFromFamily(userId: string, parentId: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id: userId, managerId: parentId },
+      data: { managerId: null },
+    });
   }
+
   getFamilyMembers(parentId: string): Promise<User[]> {
-    throw new Error('Method not implemented.');
+    return this.prismaService.user.findMany({ where: { managerId: parentId } });
   }
 }
