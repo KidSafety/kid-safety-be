@@ -9,6 +9,7 @@ import { RedisConfigService } from './models/redis_cache/redis_config.service';
 import { UsersModule } from './models/users/users.module';
 import { WebhistoryModule } from './models/webhistory/webhistory.module';
 import { SitecheckerModule } from './models/sitechecker/sitechecker.module';
+import { FamilyModule } from './models/family/family.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SitecheckerModule } from './models/sitechecker/sitechecker.module';
     WebhistoryModule,
     AccountModule,
     SitecheckerModule,
+    FamilyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
